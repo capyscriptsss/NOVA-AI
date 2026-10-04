@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA — AI Creative Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nova: {
+                            bg: '#050714',
+                            card: 'rgba(12, 17, 38, 0.65)',
+                            border: 'rgba(56, 189, 248, 0.15)',
+                            cyan: '#00f0ff',
+                            violet: '#8b5cf6',
+                            blue: '#3b82f6',
+                            magenta: '#ec4899',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow-pulse': 'glowPulse 2s infinite alternate',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        glowPulse: {
+                            '0%': { boxShadow: '0 0 15px rgba(0, 240, 255, 0.2), 0 0 30px rgba(139, 92, 246, 0.1)' },
+                            '100%': { boxShadow: '0 0 25px rgba(0, 240, 255, 0.5), 0 0 50px rgba(139, 92, 246, 0.3)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #03050e;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 240, 255, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+        }
+
+        .glass-panel {
+            background: rgba(10, 15, 30, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 240, 255, 0.12);
+        }
+
+        .glass-panel-interactive {
+            background: rgba(13, 20, 41, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel-interactive:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .glass-input {
+            background: rgba(5, 9, 20, 0.7);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .glass-input:focus {
+            border-color: rgba(0, 240, 255, 0.6);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            outline: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(5, 7, 20, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.2);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.5);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #00f0ff 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+        }
+
+        .neon-border {
+            border-color: rgba(0, 240, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased text-slate-100 selection:bg-cyan-500 selection:text-black overflow-hidden flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="h-16 border-b border-cyan-500/10 glass-panel flex items-center justify-between px-4 lg:px-6 z-40 shrink-0">
+        <!-- App Logo & Tagline -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+            <div class="relative w-9 h-9 flex items-center justify-center">
+                <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-violet-600 rounded-xl blur-md opacity-70 animate-pulse"></div>
+                <div class="relative w-9 h-9 bg-slate-950 border border-cyan-400/50 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid font-bold text-cyan-400 text-lg fa-atom"></i>
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="font-extrabold text-xl tracking-wider gradient-text">NOVA</span>
+                    <span class="text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">OS v2.6</span>
+                </div>
+                <p class="text-[10px] text-slate-400 hidden sm:block">Bir yapay zekâ. Sonsuz yetenek.</p>
+            </div>
+        </div>
+
+        <!-- AI Model Selector Dropdown -->
+        <div class="relative hidden md:block">
+            <button id="modelSelectBtn" onclick="toggleModelDropdown()" class="glass-input px-3 py-1.5 rounded-xl flex items-center space-x-2 text-xs font-medium text-slate-200 hover:border-cyan-400/50 transition-all">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                <i class="fa-solid fa-brain text-violet-400"></i>
+                <span id="selectedModelName">NOVA Smart</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30 font-mono" id="selectedModelBadge">Dengeli</span>
+                <i class="fa-solid fa-chevron-down text-slate-400 text-[10px]"></i>
+            </button>
+            
+            <!-- Model Dropdown Menu -->
+            <div id="modelDropdown" class="hidden absolute top-full mt-2 w-64 glass-panel rounded-2xl p-2 shadow-2xl z-50 border border-cyan-500/20">
+                <div class="text-[10px] uppercase font-mono tracking-wider text-slate-400 px-3 py-1.5">Model Seçimi</div>
+                <button onclick="selectModel('NOVA Smart', 'Dengeli', 'Genel akıllı görevler için optimize edilmiş standart model.')" class="w-full text-left p-2.5 rounded-xl hover:bg-cyan-500/10 flex items-start space-x-2 transition-all">
+                    <i class="fa-solid fa-bolt text-cyan-400 mt-1"></i>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-100 flex items-center justify-between">NOVA Smart <span class="text-[9px] text-cyan-400 font-mono">Dengeli</span></div>
+                        <div class="text-[11px] text-slate-400">Hızlı yanıt ve yüksek akıl yürütme.</div>
+                    </div>
+                </button>
+                <button onclick="selectModel('NOVA Fast', 'Hızlı', 'Yüksek hızlı yanıtlar ve kısa özetler için.')" class="w-full text-left p-2.5 rounded-xl hover:bg-cyan-500/10 flex items-start space-x-2 transition-all">
+                    <i class="fa-solid fa-gauge-high text-green-400 mt-1"></i>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-100 flex items-center justify-between">NOVA Fast <span class="text-[9px] text-green-400 font-mono">Ultra Hızlı</span></div>
+                        <div class="text-[11px] text-slate-400">Anında kod tamamlama ve basit metinler.</div>
+                    </div>
+                </button>
+                <button onclick="selectModel('NOVA Reasoning', 'Derin Düşünce', 'Karmaşık mantık, matematik ve mimari planlama.')" class="w-full text-left p-2.5 rounded-xl hover:bg-cyan-500/10 flex items-start space-x-2 transition-all">
+                    <i class="fa-solid fa-microchip text-violet-400 mt-1"></i>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-100 flex items-center justify-between">NOVA Reasoning <span class="text-[9px] text-violet-400 font-mono">Derin Analiz</span></div>
+                        <div class="text-[11px] text-slate-400">Adım adım problem çözümü ve mantık.</div>
+                    </div>
+                </button>
+                <button onclick="selectModel('NOVA Vision', 'Çok Modlu', 'Görsel, grafik ve doküman analizi için.')" class="w-full text-left p-2.5 rounded-xl hover:bg-cyan-500/10 flex items-start space-x-2 transition-all">
+                    <i class="fa-solid fa-eye text-amber-400 mt-1"></i>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-100 flex items-center justify-between">NOVA Vision <span class="text-[9px] text-amber-400 font-mono">Görsel</span></div>
+                        <div class="text-[11px] text-slate-400">Görselleri ve belgeleri okuma yeteneği.</div>
+                    </div>
+                </button>
+                <button onclick="selectModel('NOVA Creative', 'Üretken', 'Hikaye, medya, tasarım ve konsept üretimi.')" class="w-full text-left p-2.5 rounded-xl hover:bg-cyan-500/10 flex items-start space-x-2 transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-pink-400 mt-1"></i>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-100 flex items-center justify-between">NOVA Creative <span class="text-[9px] text-pink-400 font-mono">Kreatif</span></div>
+                        <div class="text-[11px] text-slate-400">Görsel yönü güçlü yaratıcı içerikler.</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Top Right Actions & Controls -->
+        <div class="flex items-center space-x-3">
+            <!-- Voice Mode Trigger -->
+            <button onclick="openVoiceModal()" class="relative px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-cyan-400/30 text-cyan-300 hover:text-white hover:border-cyan-400 transition-all flex items-center space-x-2 group">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform"></span>
+                <i class="fa-solid fa-microphone text-xs"></i>
+                <span class="text-xs font-semibold hidden sm:inline">Sesli Mod</span>
+            </button>
+
+            <!-- Notifications Button -->
+            <div class="relative">
+                <button onclick="toggleNotifications()" class="w-9 h-9 rounded-xl glass-input flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:border-cyan-400/50 transition-all relative">
+                    <i class="fa-regular fa-bell text-sm"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-magenta-500 animate-pulse"></span>
+                </button>
+
+                <!-- Notifications Dropdown -->
+                <div id="notificationsDropdown" class="hidden absolute right-0 top-full mt-2 w-80 glass-panel rounded-2xl p-3 shadow-2xl z-50 border border-cyan-500/20">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                        <span class="text-xs font-bold text-slate-200">Aktivite Bildirimleri</span>
+                        <span class="text-[10px] text-cyan-400 cursor-pointer" onclick="clearNotifications()">Tümünü Okundu İşaretle</span>
+                    </div>
+                    <div class="space-y-2 mt-2 max-h-60 overflow-y-auto pr-1" id="notificationsList">
+                        <div class="p-2 rounded-xl bg-slate-900/50 border border-slate-800 flex items-start space-x-2 text-xs">
+                            <i class="fa-solid fa-code text-cyan-400 mt-0.5"></i>
+                            <div>
+                                <div class="font-semibold text-slate-200">Coder Agent</div>
+                                <div class="text-[11px] text-slate-400">Projedeki syntax hatasını düzeltti.</div>
+                                <div class="text-[9px] text-slate-500 mt-1">2 dakika önce</div>
+                            </div>
+                        </div>
+                        <div class="p-2 rounded-xl bg-slate-900/50 border border-slate-800 flex items-start space-x-2 text-xs">
+                            <i class="fa-solid fa-magnifying-glass text-violet-400 mt-0.5"></i>
+                            <div>
+                                <div class="font-semibold text-slate-200">Research Agent</div>
+                                <div class="text-[11px] text-slate-400">Pazar analizi raporunu tamamladı.</div>
+                                <div class="text-[9px] text-slate-500 mt-1">15 dakika önce</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar -->
+            <div class="flex items-center space-x-2 cursor-pointer border-l border-slate-800 pl-3" onclick="switchTab('settings')">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-cyan-500 p-0.5">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Avatar" class="w-full h-full object-cover rounded-[10px]">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main OS Container Layout -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Main Sidebar Navigation -->
+        <aside class="w-16 lg:w-60 border-r border-cyan-500/10 glass-panel flex flex-col justify-between p-3 shrink-0 z-30">
+            <!-- Navigation Links -->
+            <div class="space-y-1">
+                <div class="px-3 py-2 text-[10px] uppercase font-mono tracking-widest text-slate-500 hidden lg:block">Ana Menü</div>
+                
+                <button onclick="switchTab('home')" id="nav-home" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:text-white hover:bg-cyan-500/10 border border-transparent">
+                    <i class="fa-solid fa-house text-sm text-cyan-400"></i>
+                    <span class="text-xs font-medium hidden lg:inline">Ana Sayfa</span>
+                </button>
+
+                <button onclick="switchTab('workspace')" id="nav-workspace" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:text-white hover:bg-cyan-500/10 border border-transparent">
+                    <i class="fa-solid fa-layer-group text-sm text-violet-400"></i>
+                    <span class="text-xs font-medium hidden lg:inline">Çalışma Alanı</span>
+                    <span class="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 hidden lg:inline" id="activeAgentsBadge">3 AI</span>
+                </button>
+
+                <button onclick="switchTab('imageStudio')" id="nav-imageStudio" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:text-white hover:bg-cyan-500/10 border border-transparent">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm text-pink-400"></i>
+                    <span class="text-xs font-medium hidden lg:inline">Görsel Stüdyo</span>
+                </button>
+
+                <button onclick="switchTab('coderWorkspace')" id="nav-coderWorkspace" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:text-white hover:bg-cyan-500/10 border border-transparent">
+                    <i class="fa-solid fa-code text-sm text-blue-400"></i>
+                    <span class="text-xs font-medium hidden lg:inline">Kod Editörü</span>
+                </button>
+
+                <button onclick="switchTab('researchStudio')" id="nav-researchStudio" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:text-white hover:bg-cyan-500/10 border border-transparent">
+                    <i class="fa-solid fa-compass text-sm text-amber-400"></i>
+                    <span class="text-xs font-medium hidden lg:inline">Araştırma & Analiz</span>
+                </button>
+
+                <div class="pt-4 px-3 py-2 text-[10px] uppercase font-mono tracking-widest text-slate-500 hidden lg:block">Yönetim</div>
+
+                <button onclick="switchTab('projectsDashboard')" id="nav-projectsDashboard" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:text-white hover:bg-cyan-500/10 border border-transparent">
+                    <i class="fa-solid fa-diagram-project text-sm text-emerald-400"></i>
+                    <span class="text-xs font-medium hidden lg:inline">Projeler & Otomasyon</span>
+                </button>
+
+                <button onclick="switchTab('memoryStudio')" id="nav-memoryStudio" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:text-white hover:bg-cyan-500/10 border border-transparent">
+                    <i class="fa-solid fa-memory text-sm text-indigo-400"></i>
+                    <span class="text-xs font-medium hidden lg:inline">Kişisel Hafıza</span>
+                </button>
+
+                <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all text-slate-300 hover:text-white hover:bg-cyan-500/10 border border-transparent">
+                    <i class="fa-solid fa-gear text-sm text-slate-400"></i>
+                    <span class="text-xs font-medium hidden lg:inline">Sistem Ayarları</span>
+                </button>
+            </div>
+
+            <!-- Quick System Hardware Monitor Widget -->
+            <div class="glass-panel p-3 rounded-2xl hidden lg:block border border-cyan-500/10">
+                <div class="flex items-center justify-between text-[11px] mb-2 font-mono">
+                    <span class="text-slate-400">Çekirdek Yükü</span>
+                    <span class="text-cyan-400 font-bold" id="systemLoadText">34%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                    <div id="systemLoadBar" class="h-full bg-gradient-to-r from-cyan-500 to-violet-500 w-[34%] transition-all duration-500"></div>
+                </div>
+                <div class="mt-2 text-[10px] text-slate-500 flex items-center justify-between font-mono">
+                    <span>GPU: NPU Alpha</span>
+                    <span class="text-green-400">Stabil</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Dynamic Main Content Views -->
+        <main class="flex-1 overflow-y-auto relative p-4 lg:p-6" id="mainContentView">
+
+            <!-- TAB 1: HOME SCREEN -->
+            <section id="tab-home" class="tab-content max-w-5xl mx-auto space-y-8 animate-fade-in">
+                <!-- Welcome Title -->
+                <div class="text-center space-y-2">
+                    <h1 class="text-3xl lg:text-5xl font-extrabold tracking-tight gradient-text">
+                        Ne yaptığını söyle. Gerisini NOVA halleder.
+                    </h1>
+                    <p class="text-slate-400 text-sm max-w-xl mx-auto">
+                        Tasarım yapın, kod yazın, karmaşık dokümanları analiz edin ve otomasyonlar kurun. Hepsi tek bir yapay zekâ ekosisteminde.
+                    </p>
+                </div>
+
+                <!-- Central Dynamic Interactive AI Orb Core Container -->
+                <div class="flex flex-col items-center justify-center relative py-4">
+                    <div class="relative w-64 h-64 flex items-center justify-center">
+                        <!-- Background Glow Rings -->
+                        <div class="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 via-violet-600/20 to-pink-500/20 blur-2xl animate-pulse"></div>
+                        <canvas id="aiCoreCanvas" width="280" height="280" class="relative z-10 cursor-pointer" title="NOVA Core - Tıkla ve Etkileşime Geç"></canvas>
+                    </div>
+                    
+                    <!-- Orb State Selector Controls -->
+                    <div class="mt-4 flex flex-wrap justify-center gap-1.5 p-1.5 rounded-2xl glass-panel text-[11px] font-mono">
+                        <button onclick="setOrbState('idle')" class="orb-btn px-2.5 py-1 rounded-xl hover:bg-cyan-500/20 text-cyan-300 transition-all border border-cyan-500/20" id="orbBtn-idle">
+                            <i class="fa-solid fa-circle-dot text-[9px] mr-1"></i>Idle
+                        </button>
+                        <button onclick="setOrbState('thinking')" class="orb-btn px-2.5 py-1 rounded-xl hover:bg-violet-500/20 text-violet-300 transition-all border border-transparent" id="orbBtn-thinking">
+                            <i class="fa-solid fa-rotate text-[9px] mr-1"></i>Thinking
+                        </button>
+                        <button onclick="setOrbState('generating')" class="orb-btn px-2.5 py-1 rounded-xl hover:bg-pink-500/20 text-pink-300 transition-all border border-transparent" id="orbBtn-generating">
+                            <i class="fa-solid fa-wand-magic text-[9px] mr-1"></i>Generating
+                        </button>
+                        <button onclick="setOrbState('completed')" class="orb-btn px-2.5 py-1 rounded-xl hover:bg-emerald-500/20 text-emerald-300 transition-all border border-transparent" id="orbBtn-completed">
+                            <i class="fa-solid fa-check text-[9px] mr-1"></i>Completed
+                        </button>
+                        <button onclick="setOrbState('error')" class="orb-btn px-2.5 py-1 rounded-xl hover:bg-red-500/20 text-red-300 transition-all border border-transparent" id="orbBtn-error">
+                            <i class="fa-solid fa-triangle-exclamation text-[9px] mr-1"></i>Error
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Prompt Input Console -->
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center font-semibold text-lg text-slate-200 mb-3">Bugün ne üreteceğiz?</div>
+                    <div class="glass-panel p-3 rounded-3xl neon-glow transition-all">
+                        <textarea id="homePromptInput" rows="3" placeholder="Bir şeyler yaz, söyle veya dosya yükle... (Örn: React ile e-ticaret dashboard tasarla ve kodla)" class="w-full bg-transparent border-none text-slate-100 placeholder-slate-500 text-sm focus:outline-none resize-none px-2"></textarea>
+                        
+                        <!-- Uploaded Attachment Preview Badge Area -->
+                        <div id="attachmentPreview" class="hidden flex items-center gap-2 mb-2 px-2">
+                            <span class="inline-flex items-center text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2.5 py-1 rounded-xl">
+                                <i class="fa-solid fa-file text-[10px] mr-1.5"></i>
+                                <span id="attachmentName">dosya.pdf</span>
+                                <button onclick="removeAttachment()" class="ml-2 hover:text-white"><i class="fa-solid fa-xmark text-xs"></i></button>
+                            </span>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+                            <!-- Multi-modal input tools -->
+                            <div class="flex items-center space-x-1 sm:space-x-2">
+                                <button onclick="triggerFileUpload()" class="w-8 h-8 rounded-xl hover:bg-cyan-500/10 text-slate-400 hover:text-cyan-400 transition-all flex items-center justify-center" title="Dosya Yükle">
+                                    <i class="fa-solid fa-paperclip text-sm"></i>
+                                </button>
+                                <button onclick="triggerImageUpload()" class="w-8 h-8 rounded-xl hover:bg-cyan-500/10 text-slate-400 hover:text-cyan-400 transition-all flex items-center justify-center" title="Görsel Yükle">
+                                    <i class="fa-regular fa-image text-sm"></i>
+                                </button>
+                                <button onclick="triggerCamera()" class="w-8 h-8 rounded-xl hover:bg-cyan-500/10 text-slate-400 hover:text-cyan-400 transition-all flex items-center justify-center" title="Kamera">
+                                    <i class="fa-solid fa-camera text-sm"></i>
+                                </button>
+                                <button onclick="openVoiceModal()" class="w-8 h-8 rounded-xl hover:bg-cyan-500/10 text-slate-400 hover:text-cyan-400 transition-all flex items-center justify-center" title="Sesli Komut">
+                                    <i class="fa-solid fa-microphone text-sm"></i>
+                                </button>
+                                <input type="file" id="hiddenFileInput" class="hidden" onchange="handleFileSelected(event)">
+                            </div>
+
+                            <!-- Send Task Button -->
+                            <button onclick="submitHomeTask()" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 text-black font-bold text-xs hover:shadow-lg hover:shadow-cyan-500/30 hover:scale-105 transition-all flex items-center space-x-2">
+                                <span>NOVA'ya Gönder</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Agents Selection Grid -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-100">AI Ajanları</h2>
+                            <p class="text-xs text-slate-400">Birden fazla ajanı birleştirerek kolektif zeka ile çalışın.</p>
+                        </div>
+                        <div id="multiAgentStatusBadge" class="px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono font-semibold flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                            <span id="agentSelectedCountText">3 AI Birlikte Çalışıyor</span>
+                        </div>
+                    </div>
+
+                    <!-- Agents Grid Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                        <!-- Designer Agent Card -->
+                        <div onclick="toggleAgentSelection('designer')" id="agentCard-designer" class="agent-card glass-panel-interactive p-4 rounded-3xl cursor-pointer border-cyan-400/50 bg-cyan-500/10">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-palette"></i>
+                                </div>
+                                <span class="agent-checkbox w-5 h-5 rounded-full border border-cyan-400 bg-cyan-500 flex items-center justify-center text-[10px] text-black font-bold"><i class="fa-solid fa-check"></i></span>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-sm font-bold text-slate-100">Designer Agent</h3>
+                                <p class="text-xs text-slate-400 mt-1">Görsel ve UI tasarla</p>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-500 font-mono">Status: <span class="text-green-400">Hazır</span></span>
+                                <span class="text-cyan-400 font-medium">Seçildi</span>
+                            </div>
+                        </div>
+
+                        <!-- Coder Agent Card -->
+                        <div onclick="toggleAgentSelection('coder')" id="agentCard-coder" class="agent-card glass-panel-interactive p-4 rounded-3xl cursor-pointer border-cyan-400/50 bg-cyan-500/10">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-code"></i>
+                                </div>
+                                <span class="agent-checkbox w-5 h-5 rounded-full border border-cyan-400 bg-cyan-500 flex items-center justify-center text-[10px] text-black font-bold"><i class="fa-solid fa-check"></i></span>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-sm font-bold text-slate-100">Coder Agent</h3>
+                                <p class="text-xs text-slate-400 mt-1">Kod yaz ve hataları düzelt</p>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-500 font-mono">Status: <span class="text-green-400">Hazır</span></span>
+                                <span class="text-cyan-400 font-medium">Seçildi</span>
+                            </div>
+                        </div>
+
+                        <!-- Researcher Agent Card -->
+                        <div onclick="toggleAgentSelection('researcher')" id="agentCard-researcher" class="agent-card glass-panel-interactive p-4 rounded-3xl cursor-pointer border-cyan-400/50 bg-cyan-500/10">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-2xl bg-violet-500/20 text-violet-400 border border-violet-500/30 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </div>
+                                <span class="agent-checkbox w-5 h-5 rounded-full border border-cyan-400 bg-cyan-500 flex items-center justify-center text-[10px] text-black font-bold"><i class="fa-solid fa-check"></i></span>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-sm font-bold text-slate-100">Researcher Agent</h3>
+                                <p class="text-xs text-slate-400 mt-1">Araştır ve bilgileri toparla</p>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-500 font-mono">Status: <span class="text-green-400">Hazır</span></span>
+                                <span class="text-cyan-400 font-medium">Seçildi</span>
+                            </div>
+                        </div>
+
+                        <!-- Writer Agent Card -->
+                        <div onclick="toggleAgentSelection('writer')" id="agentCard-writer" class="agent-card glass-panel-interactive p-4 rounded-3xl cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-pen-nib"></i>
+                                </div>
+                                <span class="agent-checkbox w-5 h-5 rounded-full border border-slate-600 flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></span>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-sm font-bold text-slate-100">Writer Agent</h3>
+                                <p class="text-xs text-slate-400 mt-1">Metin ve içerik oluştur</p>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-500 font-mono">Status: <span class="text-green-400">Hazır</span></span>
+                                <span class="text-slate-500">Tıkla ve Ekle</span>
+                            </div>
+                        </div>
+
+                        <!-- Analyst Agent Card -->
+                        <div onclick="toggleAgentSelection('analyst')" id="agentCard-analyst" class="agent-card glass-panel-interactive p-4 rounded-3xl cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                </div>
+                                <span class="agent-checkbox w-5 h-5 rounded-full border border-slate-600 flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></span>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-sm font-bold text-slate-100">Analyst Agent</h3>
+                                <p class="text-xs text-slate-400 mt-1">Dosyaları ve verileri analiz et</p>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-500 font-mono">Status: <span class="text-green-400">Hazır</span></span>
+                                <span class="text-slate-500">Tıkla ve Ekle</span>
+                            </div>
+                        </div>
+
+                        <!-- Planner Agent Card -->
+                        <div onclick="toggleAgentSelection('planner')" id="agentCard-planner" class="agent-card glass-panel-interactive p-4 rounded-3xl cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-2xl bg-pink-500/20 text-pink-400 border border-pink-500/30 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </div>
+                                <span class="agent-checkbox w-5 h-5 rounded-full border border-slate-600 flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></span>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-sm font-bold text-slate-100">Planner Agent</h3>
+                                <p class="text-xs text-slate-400 mt-1">Projeleri planla ve organize et</p>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-500 font-mono">Status: <span class="text-green-400">Hazır</span></span>
+                                <span class="text-slate-500">Tıkla ve Ekle</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: MULTI-AGENT WORKSPACE -->
+            <section id="tab-workspace" class="tab-content hidden h-full flex flex-col lg:flex-row gap-4">
+                
+                <!-- Workspace Left Sidebar: Sub-navigation -->
+                <div class="w-full lg:w-52 glass-panel rounded-3xl p-3 flex flex-row lg:flex-col justify-between shrink-0 overflow-x-auto">
+                    <div class="space-y-1 w-full flex lg:block gap-2">
+                        <div class="px-3 py-1.5 text-[10px] uppercase font-mono text-slate-500 hidden lg:block">Proje Görünümü</div>
+                        <button class="w-full flex items-center space-x-2 px-3 py-2 rounded-2xl bg-cyan-500/20 text-cyan-300 text-xs font-semibold">
+                            <i class="fa-solid fa-comments"></i><span>Canlı Sohbet</span>
+                        </button>
+                        <button class="w-full flex items-center space-x-2 px-3 py-2 rounded-2xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-xs">
+                            <i class="fa-solid fa-folder"></i><span>Dosyalar (8)</span>
+                        </button>
+                        <button class="w-full flex items-center space-x-2 px-3 py-2 rounded-2xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-xs">
+                            <i class="fa-solid fa-robot"></i><span>Aktif Ajanlar</span>
+                        </button>
+                        <button class="w-full flex items-center space-x-2 px-3 py-2 rounded-2xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-xs">
+                            <i class="fa-solid fa-check-double"></i><span>Görevler (5)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Workspace Center Chat & Output Timeline Area -->
+                <div class="flex-1 glass-panel rounded-3xl p-4 flex flex-col justify-between h-[calc(100vh-140px)] min-h-[500px]">
+                    <!-- Live Multi-Agent Execution Progress Card Bar -->
+                    <div class="p-3 rounded-2xl bg-slate-900/80 border border-cyan-500/20 mb-4 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-mono">
+                            <span class="text-cyan-400 font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-microchip animate-spin"></i> Ajan Ekibi Çalışıyor
+                            </span>
+                            <span class="text-slate-400">İlerleme: 65%</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+                            <div class="p-2 rounded-xl bg-slate-950/60 border border-green-500/30 flex items-center justify-between">
+                                <span class="text-slate-300"><i class="fa-solid fa-check text-green-400 mr-1.5"></i>Researcher</span>
+                                <span class="text-green-400 font-mono">Tamamlandı</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-950/60 border border-cyan-500/40 flex items-center justify-between">
+                                <span class="text-slate-300"><i class="fa-solid fa-spinner animate-spin text-cyan-400 mr-1.5"></i>Designer</span>
+                                <span class="text-cyan-400 font-mono">Görsel Üretiyor</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between text-slate-500">
+                                <span><i class="fa-regular fa-clock mr-1.5"></i>Coder</span>
+                                <span class="font-mono">Sırada</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Message History List -->
+                    <div id="chatHistory" class="flex-1 overflow-y-auto space-y-4 pr-2">
+                        
+                        <!-- User Message Glass Card -->
+                        <div class="flex justify-end">
+                            <div class="max-w-xl glass-panel p-4 rounded-3xl rounded-tr-sm bg-slate-900/80 border-slate-700/50 space-y-1">
+                                <div class="text-[10px] text-slate-400 font-mono text-right">Siz • 10:42</div>
+                                <p class="text-sm text-slate-200">Gelecek nesil bir FinTech mobil uygulaması için Dashboard tasarımı ve temel kod bileşenlerini oluşturabilir misiniz?</p>
+                            </div>
+                        </div>
+
+                        <!-- AI Response Glass Card -->
+                        <div class="flex justify-start">
+                            <div class="max-w-2xl glass-panel p-4 rounded-3xl rounded-tl-sm border-cyan-500/30 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs border border-cyan-500/30">
+                                            <i class="fa-solid fa-atom"></i>
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-200">NOVA Collective</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-violet-500/20 text-violet-300 font-mono">3 Ajan Aktif</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 font-mono">10:43</span>
+                                </div>
+
+                                <div class="text-sm text-slate-300 space-y-2">
+                                    <p>FinTech Mobil Dashboard talebiniz alındı. Ekip arkadaşlarımla iş bölümünü tamamladık:</p>
+                                    
+                                    <div class="p-3 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2 text-xs font-mono">
+                                        <div class="flex items-center text-green-400">
+                                            <i class="fa-solid fa-circle-check mr-2"></i>
+                                            <strong>Researcher Agent:</strong> Son FinTech UX trendleri ve güvenlik standartları analiz edildi.
+                                        </div>
+                                        <div class="flex items-center text-cyan-400">
+                                            <i class="fa-solid fa-arrows-rotate animate-spin mr-2"></i>
+                                            <strong>Designer Agent:</strong> Koyu tema neon detaylı kart tasarımları hazırlanıyor...
+                                        </div>
+                                    </div>
+
+                                    <!-- Sample Code Box inside Chat -->
+                                    <div class="rounded-2xl bg-slate-950 border border-slate-800 p-3 font-mono text-xs text-slate-300 overflow-x-auto relative">
+                                        <div class="flex justify-between items-center text-[10px] text-slate-500 mb-2 border-b border-slate-800 pb-1">
+                                            <span>FintechCard.jsx</span>
+                                            <button onclick="copyCodeSnippet(this)" class="hover:text-cyan-400"><i class="fa-regular fa-copy"></i> Kopyala</button>
+                                        </div>
+                                        <pre><code class="text-cyan-300">export const BalanceCard = ({ balance, currency }) =&gt; (
+  &lt;div className="p-4 rounded-3xl bg-slate-900 border border-cyan-500/20 neon-glow"&gt;
+    &lt;span className="text-xs text-slate-400"&gt;Toplam Bakiye&lt;/span&gt;
+    &lt;h2 className="text-2xl font-bold text-white"&gt;{currency}{balance}&lt;/h2&gt;
+  &lt;/div&gt;
+);</code></pre>
+                                    </div>
+                                </div>
+
+                                <!-- AI Response Interactive Action Menu -->
+                                <div class="flex items-center gap-2 pt-2 border-t border-slate-800 text-[11px] text-slate-400">
+                                    <button onclick="copyMessageText(this)" class="hover:text-cyan-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> Kopyala</button>
+                                    <button onclick="regenerateAIResponse()" class="hover:text-cyan-400 flex items-center gap-1 ml-2"><i class="fa-solid fa-arrows-rotate"></i> Yeniden Oluştur</button>
+                                    <button onclick="saveToProject()" class="hover:text-cyan-400 flex items-center gap-1 ml-2"><i class="fa-regular fa-bookmark"></i> Projeye Kaydet</button>
+                                    <button onclick="shareResponse()" class="hover:text-cyan-400 flex items-center gap-1 ml-2"><i class="fa-solid fa-share-nodes"></i> Paylaş</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Interactive Workspace Chat Bar -->
+                    <div class="mt-3 pt-3 border-t border-slate-800 flex items-center space-x-2">
+                        <input id="workspaceChatInput" type="text" placeholder="Görüşünüzü yazın veya ek talimat verin..." class="flex-1 glass-input px-4 py-2.5 rounded-2xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none">
+                        <button onclick="sendWorkspaceMessage()" class="px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs rounded-2xl transition-all">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Workspace Right Panel: Live Agent Activity Console -->
+                <div class="w-full lg:w-72 glass-panel rounded-3xl p-4 flex flex-col justify-between shrink-0">
+                    <div>
+                        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Ajan Canlı Aktivite</h3>
+                            <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span>
+                        </div>
+
+                        <div class="space-y-3 font-mono text-[11px]">
+                            <div class="p-2.5 rounded-2xl bg-slate-900/60 border border-slate-800">
+                                <div class="text-violet-400 font-bold flex items-center justify-between">
+                                    <span>Researcher Agent</span>
+                                    <i class="fa-solid fa-check text-green-400"></i>
+                                </div>
+                                <div class="text-slate-400 text-[10px] mt-1">Veri kaynakları ve rakip FinTech tasarımları incelendi.</div>
+                            </div>
+
+                            <div class="p-2.5 rounded-2xl bg-slate-900/60 border border-cyan-500/30">
+                                <div class="text-cyan-400 font-bold flex items-center justify-between">
+                                    <span>Designer Agent</span>
+                                    <i class="fa-solid fa-spinner animate-spin"></i>
+                                </div>
+                                <div class="text-slate-400 text-[10px] mt-1">UI bileşenleri ve renk paletleri üretiyor...</div>
+                            </div>
+
+                            <div class="p-2.5 rounded-2xl bg-slate-900/60 border border-slate-800 opacity-60">
+                                <div class="text-blue-400 font-bold flex items-center justify-between">
+                                    <span>Coder Agent</span>
+                                    <i class="fa-solid fa-pause"></i>
+                                </div>
+                                <div class="text-slate-400 text-[10px] mt-1">Tasarım tamamlanması bekleniyor.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 text-center">
+                        <button onclick="switchTab('coderWorkspace')" class="w-full py-2 rounded-xl bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 text-xs font-semibold border border-violet-500/30 transition-all">
+                            Kod Editörünü Aç <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- TAB 3: IMAGE GENERATION STUDIO -->
+            <section id="tab-imageStudio" class="tab-content hidden max-w-6xl mx-auto space-y-6">
+                <!-- Studio Header -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold gradient-text">Görsel Üretim Stüdyosu</h1>
+                        <p class="text-xs text-slate-400">Hayalinizi metne dökün, NOVA yüksek kalitede dikeysel ve yatay görsellere dönüştürsün.</p>
+                    </div>
+                </div>
+
+                <!-- Prompt Generation Controls Panel -->
+                <div class="glass-panel p-4 rounded-3xl space-y-4 border-pink-500/20">
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <input id="imagePromptInput" type="text" placeholder="Ne oluşturmak istiyorsun? (Örn: Cyberpunk neon şehir sokaklarında duran otonom spor araba, 8K ultra detaylı)" class="flex-1 glass-input px-4 py-3 rounded-2xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none">
+                        <button onclick="generateImageStudio()" class="px-6 py-3 bg-gradient-to-r from-pink-500 to-violet-600 text-white font-bold text-xs rounded-2xl hover:shadow-lg hover:shadow-pink-500/30 transition-all flex items-center justify-center space-x-2 shrink-0">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Görsel Üret</span>
+                        </button>
+                    </div>
+
+                    <!-- Style & Filter Selectors -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-xs font-mono">
+                        <button onclick="selectImageStyle(this)" class="image-style-btn p-2 rounded-2xl glass-panel text-center border-pink-500/40 text-pink-300">Cinematic</button>
+                        <button onclick="selectImageStyle(this)" class="image-style-btn p-2 rounded-2xl glass-panel text-center border-slate-800 text-slate-400">Photorealistic</button>
+                        <button onclick="selectImageStyle(this)" class="image-style-btn p-2 rounded-2xl glass-panel text-center border-slate-800 text-slate-400">Anime</button>
+                        <button onclick="selectImageStyle(this)" class="image-style-btn p-2 rounded-2xl glass-panel text-center border-slate-800 text-slate-400">3D Render</button>
+                        <button onclick="selectImageStyle(this)" class="image-style-btn p-2 rounded-2xl glass-panel text-center border-slate-800 text-slate-400">Minimal</button>
+                        <button onclick="selectImageStyle(this)" class="image-style-btn p-2 rounded-2xl glass-panel text-center border-slate-800 text-slate-400">Cyberpunk</button>
+                        <button onclick="selectImageStyle(this)" class="image-style-btn p-2 rounded-2xl glass-panel text-center border-slate-800 text-slate-400">Illustration</button>
+                    </div>
+                </div>
+
+                <!-- Generated Gallery Grid -->
+                <div class="space-y-3">
+                    <h2 class="text-sm font-bold text-slate-300">Üretilen Görseller & Galeri</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="imageGalleryGrid">
+                        
+                        <!-- Gallery Item 1 -->
+                        <div class="group relative rounded-3xl overflow-hidden glass-panel border-slate-800 aspect-video">
+                            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" alt="Generated" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
+                                <p class="text-xs text-slate-200 font-medium">Futuristic Neural AI Interface with glowing cyan holograms</p>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="showToast('Görsel büyütüldü (Upscaled)')" class="px-2.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs border border-cyan-500/30">Upscale</button>
+                                    <button onclick="showToast('İndirme başlatıldı')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs"><i class="fa-solid fa-download"></i></button>
+                                    <button onclick="showToast('Projeye eklendi')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs"><i class="fa-regular fa-bookmark"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Item 2 -->
+                        <div class="group relative rounded-3xl overflow-hidden glass-panel border-slate-800 aspect-video">
+                            <img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80" alt="Generated" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
+                                <p class="text-xs text-slate-200 font-medium">Cyberpunk Metropolis in midnight neon violet rain</p>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="showToast('Görsel büyütüldü (Upscaled)')" class="px-2.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs border border-cyan-500/30">Upscale</button>
+                                    <button onclick="showToast('İndirme başlatıldı')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs"><i class="fa-solid fa-download"></i></button>
+                                    <button onclick="showToast('Projeye eklendi')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs"><i class="fa-regular fa-bookmark"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Item 3 -->
+                        <div class="group relative rounded-3xl overflow-hidden glass-panel border-slate-800 aspect-video">
+                            <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80" alt="Generated" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
+                                <p class="text-xs text-slate-200 font-medium">Abstract 3D Liquid Crystal Wave structure</p>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="showToast('Görsel büyütüldü (Upscaled)')" class="px-2.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs border border-cyan-500/30">Upscale</button>
+                                    <button onclick="showToast('İndirme başlatıldı')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs"><i class="fa-solid fa-download"></i></button>
+                                    <button onclick="showToast('Projeye eklendi')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs"><i class="fa-regular fa-bookmark"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: CODER AGENT WORKSPACE -->
+            <section id="tab-coderWorkspace" class="tab-content hidden h-full flex flex-col lg:flex-row gap-4">
+                
+                <!-- Left File Tree Sidebar -->
+                <div class="w-full lg:w-56 glass-panel rounded-3xl p-3 shrink-0 font-mono text-xs space-y-2">
+                    <div class="text-[10px] uppercase tracking-wider text-slate-500 px-2 py-1">Dosya Ağacı</div>
+                    <div class="space-y-1">
+                        <div class="px-2 py-1.5 rounded-xl text-slate-300 flex items-center space-x-2">
+                            <i class="fa-solid fa-folder-open text-amber-400"></i><span>src/</span>
+                        </div>
+                        <div class="pl-4 space-y-1">
+                            <div class="px-2 py-1.5 rounded-xl text-slate-400 hover:text-slate-200 flex items-center space-x-2 cursor-pointer">
+                                <i class="fa-solid fa-folder text-amber-400"></i><span>components/</span>
+                            </div>
+                            <div class="px-2 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 font-semibold flex items-center space-x-2 cursor-pointer">
+                                <i class="fa-brands fa-react text-cyan-400"></i><span>App.jsx</span>
+                            </div>
+                            <div class="px-2 py-1.5 rounded-xl text-slate-400 hover:text-slate-200 flex items-center space-x-2 cursor-pointer">
+                                <i class="fa-brands fa-css3-alt text-blue-400"></i><span>index.css</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Code Editor Preview Area -->
+                <div class="flex-1 glass-panel rounded-3xl p-4 flex flex-col justify-between font-mono text-xs overflow-hidden border-blue-500/20">
+                    <div>
+                        <!-- File Header Tab -->
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-brands fa-react text-cyan-400"></i>
+                                <span class="text-slate-200 font-semibold">src/App.jsx</span>
+                            </div>
+                            <span class="text-[10px] text-green-400 bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">No Syntax Errors</span>
+                        </div>
+
+                        <!-- Interactive Code Editor -->
+                        <div class="mt-4 text-slate-300 space-y-1 overflow-x-auto" id="codeEditorContent">
+                            <div><span class="text-violet-400">import</span> React, { useState } <span class="text-violet-400">from</span> <span class="text-emerald-300">'react'</span>;</div>
+                            <br>
+                            <div><span class="text-violet-400">export default function</span> <span class="text-blue-400">App</span>() {</div>
+                            <div class="pl-4"><span class="text-violet-400">const</span> [count, setCount] = <span class="text-blue-400">useState</span>(<span class="text-amber-300">0</span>);</div>
+                            <br>
+                            <div class="pl-4 text-slate-500">// NOVA Auto-optimized rendering function</div>
+                            <div class="pl-4"><span class="text-violet-400">return</span> (</div>
+                            <div class="pl-8 text-cyan-300">&lt;div className="p-6 bg-slate-900 text-white rounded-3xl"&gt;</div>
+                            <div class="pl-12">&lt;h1 className="text-2xl font-bold"&gt;NOVA Powered Component&lt;/h1&gt;</div>
+                            <div class="pl-12">&lt;button onClick={() =&gt; setCount(c =&gt; c + 1)} className="mt-4 px-4 py-2 bg-cyan-500 text-black font-bold rounded-xl"&gt;</div>
+                            <div class="pl-16">Sayaç: {count}</div>
+                            <div class="pl-12">&lt;/button&gt;</div>
+                            <div class="pl-8 text-cyan-300">&lt;/div&gt;</div>
+                            <div class="pl-4">);</div>
+                            <div>}</div>
+                        </div>
+                    </div>
+
+                    <!-- Terminal Output Panel -->
+                    <div class="mt-4 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px]">
+                        <div class="flex items-center justify-between text-slate-500 border-b border-slate-800 pb-1 mb-2">
+                            <span><i class="fa-solid fa-terminal mr-1"></i> Terminal / Build Output</span>
+                            <span class="text-green-400">Ready</span>
+                        </div>
+                        <div class="text-slate-400" id="terminalLog">
+                            [10:44:02] VITE v5.2.0 ready in 240 ms<br>
+                            [10:44:05] Coder Agent active. Analyzing code performance...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Coder Agent Actions Sidebar -->
+                <div class="w-full lg:w-64 glass-panel rounded-3xl p-4 shrink-0 space-y-4">
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-code text-blue-400"></i> Coder Agent
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mt-1">Bu dosyadaki problemleri bulmamı ister misin?</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button onclick="coderAgentAction('fix')" class="w-full p-2.5 rounded-2xl glass-panel-interactive text-left flex items-center space-x-2 text-xs">
+                            <i class="fa-solid fa-wrench text-amber-400"></i>
+                            <div>
+                                <div class="font-bold text-slate-200">Fix Bugs</div>
+                                <div class="text-[10px] text-slate-400">Hataları Otomatik Düzelt</div>
+                            </div>
+                        </button>
+
+                        <button onclick="coderAgentAction('explain')" class="w-full p-2.5 rounded-2xl glass-panel-interactive text-left flex items-center space-x-2 text-xs">
+                            <i class="fa-solid fa-lightbulb text-yellow-400"></i>
+                            <div>
+                                <div class="font-bold text-slate-200">Explain Code</div>
+                                <div class="text-[10px] text-slate-400">Kodu Adım Adım Açıkla</div>
+                            </div>
+                        </button>
+
+                        <button onclick="coderAgentAction('optimize')" class="w-full p-2.5 rounded-2xl glass-panel-interactive text-left flex items-center space-x-2 text-xs">
+                            <i class="fa-solid fa-gauge-high text-cyan-400"></i>
+                            <div>
+                                <div class="font-bold text-slate-200">Optimize</div>
+                                <div class="text-[10px] text-slate-400">Performansı İyileştir</div>
+                            </div>
+                        </button>
+
+                        <button onclick="coderAgentAction('tests')" class="w-full p-2.5 rounded-2xl glass-panel-interactive text-left flex items-center space-x-2 text-xs">
+                            <i class="fa-solid fa-vial text-emerald-400"></i>
+                            <div>
+                                <div class="font-bold text-slate-200">Generate Tests</div>
+                                <div class="text-[10px] text-slate-400">Jest / Unit Test Yaz</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- TAB 5: RESEARCH & DOCUMENT STUDIO -->
+            <section id="tab-researchStudio" class="tab-content hidden max-w-5xl mx-auto space-y-6">
+                <div>
+                    <h1 class="text-2xl font-bold gradient-text">Araştırma & Doküman Analisti</h1>
+                    <p class="text-xs text-slate-400">Konu başlığı girin veya PDF, DOCX, TXT dosyası yükleyerek derinlemesine rapor hazırlatın.</p>
+                </div>
+
+                <!-- Input & File Drop Area -->
+                <div class="glass-panel p-4 rounded-3xl border-violet-500/20 space-y-4">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input id="researchQueryInput" type="text" placeholder="Örn: Yapay zekânın eğitim üzerindeki etkisini araştır ve istatistikleri çıkar." class="flex-1 glass-input px-4 py-3 rounded-2xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none">
+                        <button onclick="startResearch()" class="px-6 py-3 bg-gradient-to-r from-violet-600 to-cyan-500 text-black font-bold text-xs rounded-2xl hover:shadow-lg hover:shadow-violet-500/30 transition-all flex items-center justify-center space-x-2 shrink-0">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>Araştır</span>
+                        </button>
+                    </div>
+
+                    <!-- Drag and Drop PDF Dropzone -->
+                    <div onclick="triggerFileUpload()" class="border-2 border-dashed border-slate-800 hover:border-violet-500/50 rounded-2xl p-6 text-center cursor-pointer transition-all">
+                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-violet-400 mb-2"></i>
+                        <p class="text-xs font-semibold text-slate-300">Sürükle ve Bırak veya Dosya Seç</p>
+                        <p class="text-[10px] text-slate-500 mt-1">PDF, DOCX, TXT, CSV (Maks 50MB)</p>
+                    </div>
+                </div>
+
+                <!-- Research Results Output Section -->
+                <div class="space-y-4" id="researchResultsArea">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-200">Son Araştırma Raporu</h2>
+                        <span class="text-xs text-cyan-400 font-mono">12 Kaynak İncelendi</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Key Findings Card -->
+                        <div class="glass-panel p-4 rounded-3xl space-y-2">
+                            <h3 class="text-xs font-bold text-violet-400 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-key"></i> Öne Çıkan Bulgular
+                            </h3>
+                            <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
+                                <li>Kişiselleştirilmiş öğrenme algoritmaları öğrenci başarısını %35 artırıyor.</li>
+                                <li>Öğretmenlerin idari yükü haftalık ortalama 8 saat azalıyor.</li>
+                                <li>Kodlama ve STEM eğitiminde yapay zekâ asistan kullanımı %60 yaygınlaştı.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Statistics Card -->
+                        <div class="glass-panel p-4 rounded-3xl space-y-2">
+                            <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-chart-simple"></i> Önemli İstatistikler
+                            </h3>
+                            <div class="grid grid-cols-2 gap-2 font-mono text-center">
+                                <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800">
+                                    <div class="text-lg font-bold text-cyan-400">+35%</div>
+                                    <div class="text-[10px] text-slate-400">Verimlilik Artışı</div>
+                                </div>
+                                <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800">
+                                    <div class="text-lg font-bold text-violet-400">82%</div>
+                                    <div class="text-[10px] text-slate-400">Memnuniyet Oranı</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- TAB 6: PROJECTS & AUTOMATIONS DASHBOARD -->
+            <section id="tab-projectsDashboard" class="tab-content hidden max-w-6xl mx-auto space-y-8">
+                <!-- Header -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold gradient-text">Projeler & Otomasyonlar</h1>
+                        <p class="text-xs text-slate-400">Devam eden yapay zekâ projeleriniz ve zamanlanmış otomasyon görevleri.</p>
+                    </div>
+                    <button onclick="createNewProjectModal()" class="px-4 py-2.5 rounded-2xl bg-cyan-500 text-black font-bold text-xs hover:bg-cyan-400 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Yeni Proje Başlat</span>
+                    </button>
+                </div>
+
+                <!-- Projects Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    
+                    <!-- Project Card 1 -->
+                    <div class="glass-panel-interactive p-4 rounded-3xl space-y-3">
+                        <div class="flex items-start justify-between">
+                            <div class="w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">85% Tamamlandı</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-100">NOVA Web Sitesi</h3>
+                            <p class="text-xs text-slate-400 mt-1">Gelecek nesil açılış sayfası ve interaktif 3D bileşenler.</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+                            <span>3 Ajan Aktif</span>
+                            <span>Son Düzeltme: Dün</span>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 2 -->
+                    <div class="glass-panel-interactive p-4 rounded-3xl space-y-3">
+                        <div class="flex items-start justify-between">
+                            <div class="w-10 h-10 rounded-2xl bg-violet-500/20 text-violet-400 border border-violet-500/30 flex items-center justify-center">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/30">40% Tamamlandı</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-100">AI Ders Asistanı</h3>
+                            <p class="text-xs text-slate-400 mt-1">Öğrenciler için sınav hazırlık ve not özetleme botu.</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+                            <span>2 Ajan Aktif</span>
+                            <span>Son Düzeltme: 3 saat önce</span>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 3 -->
+                    <div class="glass-panel-interactive p-4 rounded-3xl space-y-3">
+                        <div class="flex items-start justify-between">
+                            <div class="w-10 h-10 rounded-2xl bg-pink-500/20 text-pink-400 border border-pink-500/30 flex items-center justify-center">
+                                <i class="fa-solid fa-gamepad"></i>
+                            </div>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/30">10% Tasarım</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-100">Cyberpunk Game Concept</h3>
+                            <p class="text-xs text-slate-400 mt-1">Oyun senaryosu, karakter hikayeleri ve konsept çizimler.</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+                            <span>Designer + Writer</span>
+                            <span>Son Düzeltme: Bugün</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- AI Automations Section -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-bold text-slate-100">Akıllı Otomasyonlar</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-xs">
+                        <div class="p-3.5 rounded-2xl glass-panel flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-regular fa-clock text-cyan-400 text-lg"></i>
+                                <div>
+                                    <div class="text-slate-200 font-bold">Her Pazartesi Haftalık Plan Oluştur</div>
+                                    <div class="text-[10px] text-slate-400">Çalışma programı ve görevler otomatik hazırlanır.</div>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-green-400 px-2 py-1 rounded bg-green-500/10 border border-green-500/20">Aktif</span>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl glass-panel flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-file-pdf text-pink-400 text-lg"></i>
+                                <div>
+                                    <div class="text-slate-200 font-bold">Yeni Yüklenen PDF'leri Özetle</div>
+                                    <div class="text-[10px] text-slate-400">Klasöre gelen her belge anında analiz edilir.</div>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-green-400 px-2 py-1 rounded bg-green-500/10 border border-green-500/20">Aktif</span>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- TAB 7: PERSONAL MEMORY STUDIO -->
+            <section id="tab-memoryStudio" class="tab-content hidden max-w-4xl mx-auto space-y-6">
+                <div>
+                    <h1 class="text-2xl font-bold gradient-text">Kişisel AI Hafızası</h1>
+                    <p class="text-xs text-slate-400">NOVA'nın sizin hakkınızda hatırladığı tercihleri görün, düzenleyin veya silin.</p>
+                </div>
+
+                <div class="glass-panel p-4 rounded-3xl space-y-4 border-indigo-500/20">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-indigo-300">Senin Hakkında Öğrenilen Bilgiler</h3>
+                        <button onclick="addMemoryPrompt()" class="px-3 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-300 text-xs font-semibold hover:bg-indigo-500/30 border border-indigo-500/30">
+                            + Yeni Bilgi Ekle
+                        </button>
+                    </div>
+
+                    <div class="space-y-2 text-xs" id="memoryList">
+                        <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-code text-cyan-400"></i>
+                                <span class="text-slate-300">Tercih Edilen Kod Dili: <strong>React, Tailwind CSS, TypeScript</strong></span>
+                            </div>
+                            <button onclick="removeMemoryItem(this)" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+
+                        <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-palette text-pink-400"></i>
+                                <span class="text-slate-300">Tasarım Stili: <strong>Futuristic Dark Glassmorphism, Neon Cyan Accent</strong></span>
+                            </div>
+                            <button onclick="removeMemoryItem(this)" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+
+                        <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-user-gear text-amber-400"></i>
+                                <span class="text-slate-300">Yanıt Formatı: <strong>Kısa, net ve uygulanabilir kod blokları ile.</strong></span>
+                            </div>
+                            <button onclick="removeMemoryItem(this)" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 8: SYSTEM SETTINGS -->
+            <section id="tab-settings" class="tab-content hidden max-w-4xl mx-auto space-y-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-100">Sistem Ayarları</h1>
+                    <p class="text-xs text-slate-400">Hesap, güvenlik ve görünüm tercihlerinizi yapılandırın.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    
+                    <!-- Appearance Settings -->
+                    <div class="glass-panel p-4 rounded-3xl space-y-3">
+                        <h3 class="font-bold text-slate-200 uppercase tracking-wider text-[11px]">Görünüm & Tema</h3>
+                        
+                        <div class="space-y-2">
+                            <label class="text-slate-400">Tema Modu</label>
+                            <div class="grid grid-cols-3 gap-2 font-mono">
+                                <button class="p-2 rounded-xl bg-cyan-500/20 border border-cyan-400 text-cyan-300">Koyu</button>
+                                <button class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">Aydınlık</button>
+                                <button class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">Sistem</button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2">
+                            <label class="text-slate-400">Vurgu Rengi (Accent)</label>
+                            <div class="flex gap-3">
+                                <span class="w-6 h-6 rounded-full bg-cyan-400 cursor-pointer ring-2 ring-white"></span>
+                                <span class="w-6 h-6 rounded-full bg-violet-500 cursor-pointer"></span>
+                                <span class="w-6 h-6 rounded-full bg-pink-500 cursor-pointer"></span>
+                                <span class="w-6 h-6 rounded-full bg-emerald-400 cursor-pointer"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security & Privacy -->
+                    <div class="glass-panel p-4 rounded-3xl space-y-3">
+                        <h3 class="font-bold text-slate-200 uppercase tracking-wider text-[11px]">Güvenlik & Gizlilik</h3>
+                        
+                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <div>
+                                <div class="text-slate-200 font-medium">Uçtan Uca Şifreleme</div>
+                                <div class="text-[10px] text-slate-500">Sohbetler ve dosyalar şifrelenir</div>
+                            </div>
+                            <input type="checkbox" checked class="accent-cyan-400">
+                        </div>
+
+                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <div>
+                                <div class="text-slate-200 font-medium">Biyometrik Kilit</div>
+                                <div class="text-[10px] text-slate-500">Açılışta FaceID / Parmak İzi sor</div>
+                            </div>
+                            <input type="checkbox" class="accent-cyan-400">
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Full-Screen Ambient Voice Mode Modal -->
+    <div id="voiceModal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center justify-between p-8 animate-fade-in">
+        <!-- Voice Modal Header -->
+        <div class="w-full flex items-center justify-between max-w-4xl">
+            <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                <span class="text-xs font-mono text-cyan-300 uppercase tracking-widest">NOVA Sesli Mod</span>
+            </div>
+            <button onclick="closeVoiceModal()" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Center Glowing Interactive Voice Orb Container -->
+        <div class="flex flex-col items-center justify-center space-y-6">
+            <div class="relative w-72 h-72 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500 via-violet-600 to-pink-500 blur-3xl animate-pulse opacity-80"></div>
+                <div class="relative w-56 h-56 rounded-full bg-slate-950 border-2 border-cyan-400/60 flex items-center justify-center neon-glow animate-glow-pulse">
+                    <i class="fa-solid fa-microphone text-4xl text-cyan-400 animate-bounce"></i>
+                </div>
+            </div>
+            <div class="text-center space-y-1">
+                <h2 class="text-2xl font-bold text-slate-100">Dinliyorum...</h2>
+                <p class="text-xs text-slate-400 font-mono">Bana ne yapmak istediğinizi söyleyin.</p>
+            </div>
+        </div>
+
+        <!-- Voice Action Buttons Bar -->
+        <div class="flex items-center space-x-4">
+            <button onclick="toggleVoiceMute()" id="voiceMuteBtn" class="px-5 py-3 rounded-2xl glass-panel text-slate-300 hover:text-white flex items-center gap-2 text-xs font-semibold">
+                <i class="fa-solid fa-microphone-slash"></i><span>Sessiz</span>
+            </button>
+            <button onclick="closeVoiceModal()" class="px-6 py-3 rounded-2xl bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 text-xs font-bold">
+                Durdur
+            </button>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+        // Canvas AI Core Orb Interactive Render Engine
+        let orbState = 'idle'; // idle, thinking, generating, completed, error
+        const canvas = document.getElementById('aiCoreCanvas');
+        const ctx = canvas.getContext('2d');
+        let angle = 0;
+
+        function drawAiCore() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            angle += 0.03;
+
+            // Color themes based on orbState
+            let primaryColor = 'rgba(0, 240, 255, ';
+            let secondaryColor = 'rgba(139, 92, 246, ';
+
+            if (orbState === 'thinking') {
+                primaryColor = 'rgba(139, 92, 246, ';
+                secondaryColor = 'rgba(59, 130, 246, ';
+            } else if (orbState === 'generating') {
+                primaryColor = 'rgba(236, 72, 153, ';
+                secondaryColor = 'rgba(0, 240, 255, ';
+            } else if (orbState === 'completed') {
+                primaryColor = 'rgba(34, 197, 94, ';
+                secondaryColor = 'rgba(0, 240, 255, ';
+            } else if (orbState === 'error') {
+                primaryColor = 'rgba(239, 68, 68, ';
+                secondaryColor = 'rgba(245, 158, 11, ';
+            }
+
+            // Outer Orbiting Rings
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.arc(0, 0, 80, 0, Math.PI * 2);
+            ctx.strokeStyle = primaryColor + '0.4)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([15, 10]);
+            ctx.stroke();
+            ctx.restore();
+
+            // Reverse Orbit Ring
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(-angle * 1.5);
+            ctx.beginPath();
+            ctx.arc(0, 0, 95, 0, Math.PI * 2);
+            ctx.strokeStyle = secondaryColor + '0.3)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 15]);
+            ctx.stroke();
+            ctx.restore();
+
+            // Core Pulsing Sphere
+            const pulseRadius = 50 + Math.sin(angle * 2) * 5;
+            const gradient = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, pulseRadius);
+            gradient.addColorStop(0, primaryColor + '1)');
+            gradient.addColorStop(0.6, secondaryColor + '0.6)');
+            gradient.addColorStop(1, 'rgba(5, 7, 20, 0)');
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, pulseRadius, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            requestAnimationFrame(drawAiCore);
+        }
+
+        window.onload = function() {
+            drawAiCore();
+            simulateHardwareMonitor();
+        };
+
+        // Switch Orb State
+        function setOrbState(state) {
+            orbState = state;
+            document.querySelectorAll('.orb-btn').forEach(btn => {
+                btn.classList.remove('border-cyan-500/20', 'bg-cyan-500/20');
+                btn.classList.add('border-transparent');
+            });
+            const activeBtn = document.getElementById('orbBtn-' + state);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-transparent');
+                activeBtn.classList.add('border-cyan-500/20', 'bg-cyan-500/20');
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('bg-cyan-500/10', 'text-white', 'border-cyan-500/30');
+                nav.classList.add('border-transparent');
+            });
+
+            const targetTab = document.getElementById('tab-' + tabId);
+            const targetNav = document.getElementById('nav-' + tabId);
+
+            if (targetTab) targetTab.classList.remove('hidden');
+            if (targetNav) {
+                targetNav.classList.add('bg-cyan-500/10', 'text-white', 'border-cyan-500/30');
+            }
+        }
+
+        function toggleModelDropdown() {
+            document.getElementById('modelDropdown').classList.toggle('hidden');
+        }
+
+        function selectModel(name, badge, desc) {
+            document.getElementById('selectedModelName').innerText = name;
+            document.getElementById('selectedModelBadge').innerText = badge;
+            document.getElementById('modelDropdown').classList.add('hidden');
+            showToast('Model Değiştirildi: ' + name);
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notificationsDropdown').classList.toggle('hidden');
+        }
+
+        function clearNotifications() {
+            document.getElementById('notificationsList').innerHTML = '<div class="text-xs text-slate-500 text-center py-4">Yeni bildirim bulunmuyor.</div>';
+        }
+
+        const selectedAgents = new Set(['designer', 'coder', 'researcher']);
+
+        function toggleAgentSelection(agentKey) {
+            const card = document.getElementById('agentCard-' + agentKey);
+            const checkbox = card.querySelector('.agent-checkbox');
+
+            if (selectedAgents.has(agentKey)) {
+                selectedAgents.delete(agentKey);
+                card.classList.remove('border-cyan-400/50', 'bg-cyan-500/10');
+                checkbox.className = "agent-checkbox w-5 h-5 rounded-full border border-slate-600 flex items-center justify-center text-[10px] text-transparent";
+            } else {
+                selectedAgents.add(agentKey);
+                card.classList.add('border-cyan-400/50', 'bg-cyan-500/10');
+                checkbox.className = "agent-checkbox w-5 h-5 rounded-full border border-cyan-400 bg-cyan-500 flex items-center justify-center text-[10px] text-black font-bold";
+            }
+
+            const count = selectedAgents.size;
+            document.getElementById('agentSelectedCountText').innerText = count + ' AI Birlikte Çalışıyor';
+            document.getElementById('activeAgentsBadge').innerText = count + ' AI';
+        }
+
+        function triggerFileUpload() {
+            document.getElementById('hiddenFileInput').click();
+        }
+
+        function handleFileSelected(e) {
+            if (e.target.files.length > 0) {
+                const fileName = e.target.files[0].name;
+                document.getElementById('attachmentName').innerText = fileName;
+                document.getElementById('attachmentPreview').classList.remove('hidden');
+            }
+        }
+
+        function removeAttachment() {
+            document.getElementById('attachmentPreview').classList.add('hidden');
+        }
+
+        function submitHomeTask() {
+            const input = document.getElementById('homePromptInput').value.trim();
+            if(!input) return;
+
+            setOrbState('thinking');
+            setTimeout(() => {
+                setOrbState('generating');
+                switchTab('workspace');
+                showToast('Görev Çalışma Alanına aktarıldı');
+            }, 1200);
+        }
+
+        function sendWorkspaceMessage() {
+            const input = document.getElementById('workspaceChatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const chat = document.getElementById('chatHistory');
+            
+            // Append User Message
+            const userHtml = `
+                <div class="flex justify-end animate-fade-in">
+                    <div class="max-w-xl glass-panel p-4 rounded-3xl rounded-tr-sm bg-slate-900/80 border-slate-700/50 space-y-1">
+                        <div class="text-[10px] text-slate-400 font-mono text-right">Siz • Simdi</div>
+                        <p class="text-sm text-slate-200">${text}</p>
+                    </div>
+                </div>`;
+            chat.insertAdjacentHTML('beforeend', userHtml);
+            input.value = '';
+
+            // Simulate AI Generating Response
+            setTimeout(() => {
+                const aiHtml = `
+                    <div class="flex justify-start animate-fade-in">
+                        <div class="max-w-2xl glass-panel p-4 rounded-3xl rounded-tl-sm border-cyan-500/30 space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs border border-cyan-500/30">
+                                    <i class="fa-solid fa-atom"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-200">NOVA Collective</span>
+                            </div>
+                            <p class="text-sm text-slate-300">Talebiniz incelendi. Coder ve Designer Ajanları güncelleme üzerinde çalışıyor...</p>
+                        </div>
+                    </div>`;
+                chat.insertAdjacentHTML('beforeend', aiHtml);
+                chat.scrollTop = chat.scrollHeight;
+            }, 1000);
+        }
+
+        function openVoiceModal() {
+            document.getElementById('voiceModal').classList.remove('hidden');
+        }
+
+        function closeVoiceModal() {
+            document.getElementById('voiceModal').classList.add('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'glass-panel px-4 py-3 rounded-2xl text-xs font-semibold text-cyan-300 border border-cyan-500/30 shadow-2xl flex items-center space-x-2 animate-bounce';
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i><span>${msg}</span>`;
+            document.getElementById('toastContainer').appendChild(toast);
+
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function coderAgentAction(action) {
+            const editor = document.getElementById('codeEditorContent');
+            const log = document.getElementById('terminalLog');
+
+            if(action === 'fix') {
+                log.innerHTML += `<br><span class="text-cyan-400">[NOVA Coder] Fixing syntax & optimizing state management...</span>`;
+                showToast('Hatalar Otomatik Düzeltildi');
+            } else if(action === 'optimize') {
+                log.innerHTML += `<br><span class="text-green-400">[NOVA Coder] Render tree optimized (Saved 12ms execution time)</span>`;
+                showToast('Performans Optimize Edildi');
+            }
+        }
+
+        function simulateHardwareMonitor() {
+            setInterval(() => {
+                const load = Math.floor(Math.random() * 25) + 25;
+                document.getElementById('systemLoadText').innerText = load + '%';
+                document.getElementById('systemLoadBar').style.width = load + '%';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
